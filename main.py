@@ -42,9 +42,16 @@ while running:
         all_sprites.add(projectile)
         projectiles.add(projectile)
 
+
     # Rendu
     screen.fill("black")
     all_sprites.draw(screen)
+
+    # Affichage de la vie du joueur (barres rouges)
+    for i in range(player.max_health):
+        color = (200, 50, 50) if i < player.health else (60, 60, 60)
+        pygame.draw.rect(screen, color, (20 + i * 36, 20, 32, 24))
+        pygame.draw.rect(screen, (255,255,255), (20 + i * 36, 20, 32, 24), 2)
 
     pygame.display.flip()
     clock.tick(60)
