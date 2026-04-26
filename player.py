@@ -31,29 +31,36 @@ class Projectile(pygame.sprite.Sprite):
 
 # Classe Joueur
 class Player(pygame.sprite.Sprite):
+
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((32, 32))
-        self.image.fill(RED)
+        self.base_image = pygame.Surface((32, 32))
+        self.base_image.fill(RED)
+        self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        
+
         # Stats
         self.speed = 4
         self.health = 6
         self.max_health = 6
         self.position = pygame.math.Vector2(x, y)
         self.velocity = pygame.math.Vector2(0, 0)
-        
+
         # Tir
         self.shoot_cooldown = 0
         self.shoot_delay = 15  # frames entre chaque tir
+
+        # Invulnérabilité
+        self.invuln_frames = 0
+        self.invuln_duration = 30  # frames d'invulnérabilité après un coup
         
+
     def update(self, keys):
         # Mouvement
         self.velocity.x = 0
         self.velocity.y = 0
-        
+
         if keys[pygame.K_z] or keys[pygame.K_w]:
             self.velocity.y = -self.speed
         if keys[pygame.K_s]:
@@ -62,13 +69,24 @@ class Player(pygame.sprite.Sprite):
             self.velocity.x = -self.speed
         if keys[pygame.K_d]:
             self.velocity.x = self.speed
-            
+
         self.position += self.velocity
         self.rect.center = self.position
-        
+
         # Cooldown tir
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
+
+        # Invulnérabilité et clignotement
+        if self.invuln_frames > 0:
+            self.invuln_frames -= 1
+            # Clignotement
+            if (self.invuln_frames // 3) % 2 == 0:
+                self.image.set_alpha(60)
+            else:
+                self.image.set_alpha(255)
+        else:
+            self.image.set_alpha(255)
             
     def shoot(self, direction):
         if self.shoot_cooldown == 0 and direction.length() > 0:
